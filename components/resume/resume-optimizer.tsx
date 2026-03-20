@@ -81,7 +81,7 @@ export function ResumeOptimizer({ resume, jobDescription }: ResumeOptimizerProps
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Overall Score */}
-          <div className="bg-gradient-to-r from-accent/10 to-accent/5 p-4 rounded-lg border border-accent/20">
+          <div className="bg-linear-to-r from-accent/10 to-accent/5 p-4 rounded-lg border border-accent/20">
             <div className="text-center">
               <div className="text-4xl font-bold text-accent">{analysis.overall_score}</div>
               <p className="text-sm text-muted-foreground mt-1">Overall Optimization Score</p>

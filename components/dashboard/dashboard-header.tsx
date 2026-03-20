@@ -60,7 +60,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
 
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent/50 flex items-center justify-center text-white text-sm font-bold">
+            <div className="w-8 h-8 rounded-full bg-linear-to-br from-accent to-accent/50 flex items-center justify-center text-white text-sm font-bold">
               {user?.full_name?.charAt(0) || user?.email?.charAt(0) || "U"}
             </div>
             <span className="text-sm text-foreground">{user?.full_name || user?.email}</span>

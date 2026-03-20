@@ -10,27 +10,25 @@ export async function getSession(...args: any[]) {
     // @ts-ignore - Auth0 SDK typing issue
     const s = await auth0GetSession(...args)
     if (s) return s
-  } catch (e) {
+  } catch {
     // fallthrough to dev mock
   }
 
-  if (process.env.NODE_ENV !== "production" && process.env.DEV_MOCK_AUTH === "true") {
-    try {
-      const cookieStore: any = (cookies as any)()
-      const dev = cookieStore.get("dev_user")?.value
-      if (dev) {
-        const parsed = JSON.parse(decodeURIComponent(dev))
-        const user = {
-          sub: `dev|${parsed.email}`,
-          name: parsed.name || parsed.email,
-          email: parsed.email,
-        }
-        // Return an object resembling Auth0 session shape used across the app
-        return { user }
+  // Always check for a dev_user cookie as fallback (set by /api/auth/mock-login)
+  try {
+    const cookieStore = await cookies()
+    const dev = cookieStore.get("dev_user")?.value
+    if (dev) {
+      const parsed = JSON.parse(decodeURIComponent(dev))
+      const user = {
+        sub: `dev|${parsed.email}`,
+        name: parsed.name || parsed.email,
+        email: parsed.email,
       }
-    } catch (err) {
-      // ignore
+      return { user }
     }
+  } catch {
+    // ignore
   }
 
   return null

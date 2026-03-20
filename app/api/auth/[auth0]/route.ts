@@ -58,25 +58,30 @@ const REQUIRED_AUTH0_ENVS = [
 ]
 
 export async function GET(request: Request) {
-  const missing = REQUIRED_AUTH0_ENVS.filter((k) => !process.env[k])
-  if (missing.length > 0) {
-    // In development, avoid an opaque 500: redirect developer to the local login page
-    // so they can at least exercise the UI while envs are not set.
-    if (process.env.NODE_ENV === "development") {
-      return new Response(null, { status: 302, headers: { Location: "/auth/login" } })
-    }
+  const url = new URL(request.url)
+  const isLogout = url.pathname.endsWith("/logout")
 
-    // In non-dev environments, return a clear JSON error so deploys fail loudly and
-    // the missing environment variables can be fixed.
-    return new Response(
-      JSON.stringify({ error: "Missing Auth0 env variables", missing }),
-      { status: 500, headers: { "content-type": "application/json" } },
-    )
+  // Handle logout for demo users: clear the dev_user cookie and redirect
+  if (isLogout) {
+    const hasCookie = request.headers.get("cookie")?.includes("dev_user")
+    const missing = REQUIRED_AUTH0_ENVS.filter((k) => !process.env[k])
+    if (hasCookie || missing.length > 0) {
+      const baseUrl = process.env.AUTH0_BASE_URL || "http://localhost:3000"
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: `${baseUrl}/auth/login`,
+          "Set-Cookie": "dev_user=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0",
+        },
+      })
+    }
   }
 
-  // Create the auth handler now that we know env vars are present and delegate to it.
-  // Note: createAuthHandler returns a function that is compatible with the App Router
-  // Request handler signature.
+  const missing = REQUIRED_AUTH0_ENVS.filter((k) => !process.env[k])
+  if (missing.length > 0) {
+    return new Response(null, { status: 302, headers: { Location: "/auth/login" } })
+  }
+
   const authHandler = createAuthHandler()
   return authHandler(request as any)
 }

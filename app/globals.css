@@ -132,6 +132,29 @@
   }
 }
 
+/* Smooth page transitions */
+@layer utilities {
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Selection color */
+::selection {
+  background-color: oklch(0.7 0.15 220 / 0.3);
+}
+
+/* Smooth focus transitions */
+input,
+textarea,
+select,
+button {
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
 @supports (scrollbar-gutter: stable) {
   html {
     scrollbar-gutter: stable;
