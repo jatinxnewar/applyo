@@ -1,4 +1,4 @@
-import { getSession } from "@auth0/nextjs-auth0"
+import { getSession } from "@/lib/auth0"
 import { getDatabase } from "@/lib/mongodb/client"
 import { NextResponse } from "next/server"
 

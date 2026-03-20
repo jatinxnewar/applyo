@@ -47,8 +47,38 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     setLoading(true)
-    window.location.href = "/api/auth/login?connection=google-oauth2"
+
+    // Ask the server if Auth0 is configured; if so, navigate to the auth route.
+    ;(async () => {
+      try {
+        const check = await fetch(`/api/auth/check`)
+        const json = await check.json()
+        if (!json.ok) {
+          setError(
+            `Auth0 is not configured locally (missing: ${json.missing?.join(", ")}). Add AUTH0_* env vars or use a mock login for development.`,
+          )
+          setLoading(false)
+          return
+        }
+
+        // Auth0 is configured on the server — do a full navigation to start OAuth.
+        window.location.href = `/api/auth/login?connection=google-oauth2`
+      } catch (err) {
+        console.error("OAuth check error:", err)
+        setError("Failed to start OAuth flow")
+      } finally {
+        setLoading(false)
+      }
+    })()
   }
+
+  const [isLocalhost, setIsLocalhost] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsLocalhost(window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    }
+  }, [])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-card p-4">
@@ -103,6 +133,11 @@ export default function LoginPage() {
 
           <div className="text-center text-xs text-muted-foreground">
             <p>By signing in, you agree to our Terms of Service and Privacy Policy</p>
+            {isLocalhost && (
+              <p className="mt-2">
+                Development: <a className="underline" href="/api/auth/mock-login">Sign in as a mock user</a>
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
